@@ -23,7 +23,6 @@ from conda import config
 from conda.utils import memoized
 from conda.connection import CondaSession, unparse_url, RETRIES
 from conda.compat import itervalues, input, urllib_quote
-from conda.lock import Locked
 
 import requests
 
@@ -326,7 +325,8 @@ def download(url, dst_path, session=None, md5=None, urlstxt=False,
 
     if retries is None:
         retries = RETRIES
-    with Locked(dst_dir):
+
+    if 1:
         try:
             resp = session.get(url, stream=True, proxies=session.proxies)
             resp.raise_for_status()

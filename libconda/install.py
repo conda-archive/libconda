@@ -43,22 +43,12 @@ import traceback
 from os.path import (abspath, basename, dirname, isdir, isfile, islink, join)
 
 try:
-    from conda.lock import Locked
     from conda.config import pkgs_dirs
 except ImportError:
     # Make sure this still works as a standalone script for the Anaconda
     # installer.
     pkgs_dirs = [sys.prefix]
 
-    class Locked(object):
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def __enter__(self):
-            pass
-
-        def __exit__(self, exc_type, exc_value, traceback):
-            pass
 
 on_win = bool(sys.platform == 'win32')
 
@@ -90,23 +80,6 @@ if on_win:
         if not CreateSymbolicLink(dst, src, isdir(src)):
             raise OSError('win32 soft link failed')
 
-
-log = logging.getLogger(__name__)
-stdoutlog = logging.getLogger('stdoutlog')
-
-class NullHandler(logging.Handler):
-    """ Copied from Python 2.7 to avoid getting
-        `No handlers could be found for logger "patch"`
-        http://bugs.python.org/issue16539
-    """
-    def handle(self, record):
-        pass
-    def emit(self, record):
-        pass
-    def createLock(self):
-        self.lock = None
-
-log.addHandler(NullHandler())
 
 LINK_HARD = 1
 LINK_SOFT = 2
@@ -457,9 +430,8 @@ def is_fetched(pkgs_dir, dist):
     return isfile(join(pkgs_dir, dist + '.tar.bz2'))
 
 def rm_fetched(pkgs_dir, dist):
-    with Locked(pkgs_dir):
-        path = join(pkgs_dir, dist + '.tar.bz2')
-        rm_rf(path)
+    path = join(pkgs_dir, dist + '.tar.bz2')
+    rm_rf(path)
 
 # ------- package cache ----- extracted
 
@@ -478,28 +450,26 @@ def extract(pkgs_dir, dist):
     Extract a package, i.e. make a package available for linkage.  We assume
     that the compressed packages is located in the packages directory.
     """
-    with Locked(pkgs_dir):
-        path = join(pkgs_dir, dist)
-        t = tarfile.open(path + '.tar.bz2')
-        t.extractall(path=path)
-        t.close()
-        if sys.platform.startswith('linux') and os.getuid() == 0:
-            # When extracting as root, tarfile will by restore ownership
-            # of extracted files.  However, we want root to be the owner
-            # (our implementation of --no-same-owner).
-            for root, dirs, files in os.walk(path):
-                for fn in files:
-                    p = join(root, fn)
-                    os.lchown(p, 0, 0)
+    path = join(pkgs_dir, dist)
+    t = tarfile.open(path + '.tar.bz2')
+    t.extractall(path=path)
+    t.close()
+    if sys.platform.startswith('linux') and os.getuid() == 0:
+        # When extracting as root, tarfile will by restore ownership
+        # of extracted files.  However, we want root to be the owner
+        # (our implementation of --no-same-owner).
+        for root, dirs, files in os.walk(path):
+            for fn in files:
+                p = join(root, fn)
+                os.lchown(p, 0, 0)
 
 def is_extracted(pkgs_dir, dist):
     return (isfile(join(pkgs_dir, dist, 'info', 'files')) and
             isfile(join(pkgs_dir, dist, 'info', 'index.json')))
 
 def rm_extracted(pkgs_dir, dist):
-    with Locked(pkgs_dir):
-        path = join(pkgs_dir, dist)
-        rm_rf(path)
+    path = join(pkgs_dir, dist)
+    rm_rf(path)
 
 # ------- linkage of packages
 
@@ -615,7 +585,7 @@ def link(pkgs_dir, prefix, dist, linktype=LINK_HARD, index=None):
     has_prefix_files = read_has_prefix(join(info_dir, 'has_prefix'))
     no_link = read_no_link(info_dir)
 
-    with Locked(prefix), Locked(pkgs_dir):
+    if 1:
         for f in files:
             src = join(source_dir, f)
             dst = join(prefix, f)
@@ -683,7 +653,7 @@ def unlink(prefix, dist):
     Remove a package from the specified environment, it is an error if the
     package does not exist in the prefix.
     '''
-    with Locked(prefix):
+    if 1:
         run_script(prefix, dist, 'pre-unlink')
 
         meta_path = join(prefix, 'conda-meta', dist + '.json')
