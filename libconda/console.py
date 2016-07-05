@@ -5,9 +5,9 @@ import json
 import logging
 import contextlib
 
-from conda.utils import memoized
-from conda.progressbar import (Bar, ETA, FileTransferSpeed, Percentage,
-                               ProgressBar)
+from libconda.utils import memoized
+from libconda.progressbar import (Bar, ETA, FileTransferSpeed, Percentage,
+                                  ProgressBar)
 
 
 fetch_progress = ProgressBar(

@@ -19,10 +19,10 @@ import getpass
 import warnings
 from functools import wraps
 
-from conda import config
-from conda.utils import memoized
-from conda.connection import CondaSession, unparse_url, RETRIES
-from conda.compat import itervalues, input, urllib_quote
+from libconda import config
+from libconda.utils import memoized
+from libconda.connection import CondaSession, unparse_url, RETRIES
+from libconda.compat import itervalues, input, urllib_quote
 
 import requests
 
@@ -294,7 +294,7 @@ def fetch_pkg(info, dst_dir=None, session=None):
 
     download(url, path, session=session, md5=info['md5'], urlstxt=True)
     if info.get('sig'):
-        from conda.signature import verify, SignatureError
+        from libconda.signature import verify, SignatureError
 
         fn2 = fn + '.sig'
         url = (info['channel'] if info['sig'] == '.' else
@@ -436,7 +436,7 @@ class TmpDownload(object):
             return self.url
         else:
             if self.verbose:
-                from conda.console import setup_handlers
+                from libconda.console import setup_handlers
                 setup_handlers()
             self.tmp_dir = tempfile.mkdtemp()
             dst = join(self.tmp_dir, basename(self.url))

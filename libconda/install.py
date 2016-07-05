@@ -18,11 +18,6 @@ These API functions have argument names referring to:
                  be the "default" environment (i.e. sys.prefix),
                  but is otherwise something like '/opt/anaconda/envs/foo',
                  or even any prefix, e.g. '/home/joe/myenv'
-
-Also, this module is directly invoked by the (self extracting (sfx)) tarball
-installer to create the initial environment, therefore it needs to be
-standalone, i.e. not import any other parts of `conda` (only depend on
-the standard library).
 '''
 
 from __future__ import print_function, division, absolute_import
@@ -42,12 +37,7 @@ import tempfile
 import traceback
 from os.path import (abspath, basename, dirname, isdir, isfile, islink, join)
 
-try:
-    from conda.config import pkgs_dirs
-except ImportError:
-    # Make sure this still works as a standalone script for the Anaconda
-    # installer.
-    pkgs_dirs = [sys.prefix]
+from libconda.config import pkgs_dirs
 
 
 on_win = bool(sys.platform == 'win32')
@@ -620,18 +610,8 @@ def link(pkgs_dir, prefix, dist, linktype=LINK_HARD, index=None):
         if not run_script(prefix, dist, 'post-link'):
             sys.exit("Error: post-link failed for: %s" % dist)
 
-        # Make sure the script stays standalone for the installer
-        try:
-            from conda.config import remove_binstar_tokens
-        except ImportError:
-            # There won't be any binstar tokens in the installer anyway
-            def remove_binstar_tokens(url):
-                return url
-
         meta_dict = index.get(dist + '.tar.bz2', {})
         meta_dict['url'] = read_url(pkgs_dir, dist)
-        if meta_dict['url']:
-            meta_dict['url'] = remove_binstar_tokens(meta_dict['url'])
         try:
             alt_files_path = join(prefix, 'conda-meta', dist + '.files')
             meta_dict['files'] = list(yield_lines(alt_files_path))
@@ -640,8 +620,6 @@ def link(pkgs_dir, prefix, dist, linktype=LINK_HARD, index=None):
             meta_dict['files'] = files
         meta_dict['link'] = {'source': source_dir,
                              'type': link_name_map.get(linktype)}
-        if 'channel' in meta_dict:
-            meta_dict['channel'] = remove_binstar_tokens(meta_dict['channel'])
         if 'icon' in meta_dict:
             meta_dict['icondata'] = read_icondata(source_dir)
 

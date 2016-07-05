@@ -13,8 +13,8 @@ from platform import machine
 from os.path import abspath, expanduser, isfile, isdir, join
 import re
 
-from conda.compat import urlparse
-from conda.utils import try_write, memoized
+from libconda.compat import urlparse
+from libconda.utils import try_write, memoized
 
 
 log = logging.getLogger(__name__)

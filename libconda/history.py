@@ -9,7 +9,7 @@ import warnings
 import errno
 import logging
 
-from conda import install
+from libconda import install
 
 log = logging.getLogger(__name__)
 
