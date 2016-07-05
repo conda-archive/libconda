@@ -1,10 +1,10 @@
 from logging import getLogger
 import re
 
-from conda import config
-from conda import install
-from conda.exceptions import InvalidInstruction
-from conda.fetch import fetch_pkg
+from libconda import config
+from libconda import install
+from libconda.exceptions import InvalidInstruction
+from libconda.fetch import fetch_pkg
 
 
 log = getLogger(__name__)
@@ -128,7 +128,7 @@ def execute_instructions(plan, index=None, verbose=False, _commands=None):
         _commands = commands
 
     if verbose:
-        from conda.console import setup_verbose_handlers
+        from libconda.console import setup_verbose_handlers
         setup_verbose_handlers()
 
     state = {'i': None, 'prefix': config.root_dir, 'index': index}

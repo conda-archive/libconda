@@ -27,7 +27,7 @@ through the Require and Prevent functions.
 """
 from functools import total_ordering
 from itertools import chain, combinations
-from conda.compat import iteritems, string_types, ceil, log2
+from libconda.compat import iteritems, string_types, ceil, log2
 import logging
 import pycosat
 
@@ -597,7 +597,7 @@ def minimal_unsatisfiable_subset(clauses, sat, log=False):
 
     """
     if log:
-        from conda.console import setup_verbose_handlers
+        from libconda.console import setup_verbose_handlers
         setup_verbose_handlers()
         start = lambda x: logging.getLogger('progress.start').info(x)
         update = lambda x, y: logging.getLogger('progress.update').info(("%s/%s" % (x, y), x))

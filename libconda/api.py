@@ -4,11 +4,11 @@ import os
 from collections import defaultdict
 from os.path import isdir, join
 
-from conda import config
-from conda import install
-from conda.fetch import fetch_index
-from conda.compat import iteritems, itervalues
-from conda.resolve import Package, Resolve
+from libconda import config
+from libconda import install
+from libconda.fetch import fetch_index
+from libconda.compat import iteritems, itervalues
+from libconda.resolve import Package, Resolve
 
 
 def _name_fn(fn):

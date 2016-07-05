@@ -4,12 +4,12 @@ import logging
 from collections import defaultdict
 from itertools import chain
 
-from conda.compat import iterkeys, itervalues, iteritems, string_types
-from conda.logic import minimal_unsatisfiable_subset, Clauses
-from conda.version import VersionSpec, normalized_version
-from conda.console import setup_handlers
-from conda import config
-from conda.toposort import toposort
+from libconda.compat import iterkeys, itervalues, iteritems, string_types
+from libconda.logic import minimal_unsatisfiable_subset, Clauses
+from libconda.version import VersionSpec, normalized_version
+from libconda.console import setup_handlers
+from libconda import config
+from libconda.toposort import toposort
 
 log = logging.getLogger(__name__)
 dotlog = logging.getLogger('dotupdate')

@@ -16,24 +16,15 @@ from logging import getLogger
 from collections import defaultdict
 from os.path import abspath, basename, isfile, join, exists
 
-from conda import config
-from conda import install
-from conda.history import History
-from conda.resolve import MatchSpec, Resolve, Package
-from conda.utils import md5_file, human_bytes
-from conda import instructions as inst
-from conda.exceptions import CondaException
+from libconda import config
+from libconda import install
+from libconda.history import History
+from libconda.resolve import MatchSpec, Resolve, Package
+from libconda.utils import md5_file, human_bytes
+from libconda import instructions as inst
+from libconda.exceptions import CondaException
+
 log = getLogger(__name__)
-
-# For backwards compatibility
-from conda.instructions import (FETCH, EXTRACT, UNLINK, LINK, RM_EXTRACTED,
-                                RM_FETCHED, PREFIX, PRINT, PROGRESS,
-                                SYMLINK_CONDA)
-
-# Silence pyflakes
-(FETCH, EXTRACT, UNLINK, LINK, RM_EXTRACTED,
-                                RM_FETCHED, PREFIX, PRINT, PROGRESS,
-                                SYMLINK_CONDA)
 
 
 def print_dists(dists_extras):
