@@ -1,5 +1,5 @@
 import unittest
-from conda.toposort import toposort, pop_key
+from libconda.toposort import toposort, pop_key
 
 class TopoSortTests(unittest.TestCase):
 
