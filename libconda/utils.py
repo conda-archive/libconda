@@ -1,27 +1,13 @@
 from __future__ import print_function, division, absolute_import
 
-import sys
 import logging
 import hashlib
-import tempfile
 import collections
 from functools import partial
-from os.path import abspath, isdir
 
 
 log = logging.getLogger(__name__)
 stderrlog = logging.getLogger('stderrlog')
-
-
-def try_write(dir_path):
-    assert isdir(dir_path)
-    try:
-        with tempfile.TemporaryFile(prefix='.conda-try-write',
-                                    dir=dir_path) as fo:
-            fo.write(b'This is a test file.\n')
-        return True
-    except (IOError, OSError):
-        return False
 
 
 def hashsum_file(path, mode='md5'):
@@ -37,13 +23,6 @@ def hashsum_file(path, mode='md5'):
 
 def md5_file(path):
     return hashsum_file(path, 'md5')
-
-
-def url_path(path):
-    path = abspath(path)
-    if sys.platform == 'win32':
-        path = '/' + path.replace(':', '|').replace('\\', '/')
-    return 'file://%s' % path
 
 
 def human_bytes(n):

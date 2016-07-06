@@ -92,7 +92,7 @@ def is_linked(prefix, dist):
     try:
         with open(meta_path) as fi:
             info = json.load(fi)
-            # TODO: see if info corresponds to dist
+            assert '%(name)s-%(version)s-%(build)s' % info == dist
             return True
     except IOError:
         return False

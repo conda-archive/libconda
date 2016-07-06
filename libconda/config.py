@@ -14,7 +14,7 @@ from os.path import abspath, expanduser, isfile, isdir, join
 import re
 
 from libconda.compat import urlparse
-from libconda.utils import try_write, memoized
+from libconda.utils import memoized
 
 
 log = logging.getLogger(__name__)
@@ -131,15 +131,10 @@ sys_rc = load_condarc(sys_rc_path) if isfile(sys_rc_path) else {}
 # things)
 root_dir = abspath(expanduser(os.getenv('CONDA_ROOT',
                                         rc.get('root_dir', sys.prefix))))
-root_writable = try_write(root_dir)
 root_env_name = 'root'
 
 def _default_envs_dirs():
-    lst = [join(root_dir, 'envs')]
-    if not root_writable:
-        # ~/envs for backwards compatibility
-        lst = ['~/.conda/envs', '~/envs'] + lst
-    return lst
+    return [join(root_dir, 'envs')]
 
 def _pathsep_env(name):
     x = os.getenv(name)
