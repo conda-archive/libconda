@@ -11,13 +11,11 @@ import re
 import mimetypes
 import os
 import email
-import base64
 import cgi
 from io import BytesIO
-import tempfile
 
 import libconda
-from libconda.compat import urlparse, StringIO
+from libconda.compat import urlparse
 from libconda.config import get_proxy_servers, ssl_verify
 
 import requests
@@ -73,7 +71,7 @@ class CondaSession(requests.Session):
         self.mount("file://", LocalFSAdapter())
 
         self.headers['User-Agent'] = "libconda/%s %s" % (
-                          condalib.__version__, self.headers['User-Agent'])
+                          libconda.__version__, self.headers['User-Agent'])
 
         self.verify = ssl_verify
 
