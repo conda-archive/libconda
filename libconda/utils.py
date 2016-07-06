@@ -1,13 +1,12 @@
 from __future__ import print_function, division, absolute_import
 
-import logging
 import sys
+import logging
 import hashlib
+import tempfile
 import collections
 from functools import partial
 from os.path import abspath, isdir
-import os
-import tempfile
 
 
 log = logging.getLogger(__name__)
