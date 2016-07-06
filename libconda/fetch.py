@@ -8,13 +8,13 @@ from __future__ import print_function, division, absolute_import
 
 import os
 import bz2
+import sys
 import json
 import shutil
 import hashlib
 import tempfile
 from logging import getLogger
-from os.path import basename, dirname, isdir, join
-import sys
+from os.path import basename, dirname, join
 import getpass
 import warnings
 from functools import wraps
@@ -195,32 +195,8 @@ def get_proxy_username_and_pass(scheme):
     passwd = getpass.getpass("Password:")
     return username, passwd
 
-def add_unknown(index):
-    for pkgs_dir in config.pkgs_dirs:
-        if not isdir(pkgs_dir):
-            continue
-        for dn in os.listdir(pkgs_dir):
-            fn = dn + '.tar.bz2'
-            if fn in index:
-                continue
-            try:
-                with open(join(pkgs_dir, dn, 'info', 'index.json')) as fi:
-                    meta = json.load(fi)
-            except IOError:
-                continue
-            if 'depends' not in meta:
-                meta['depends'] = []
-            log.debug("adding cached pkg to index: %s" % fn)
-            index[fn] = meta
-
-def add_pip_dependency(index):
-    for info in itervalues(index):
-        if (info['name'] == 'python' and
-                    info['version'].startswith(('2.', '3.'))):
-            info.setdefault('depends', []).append('pip')
-
 @memoized
-def fetch_index(channel_urls, use_cache=False, unknown=False):
+def fetch_index(channel_urls, use_cache=False):
     log.debug('channel_urls=' + repr(channel_urls))
     # pool = ThreadPool(5)
     index = {}
@@ -255,10 +231,6 @@ def fetch_index(channel_urls, use_cache=False, unknown=False):
         index.update(new_index)
 
     stdoutlog.info('\n')
-    if unknown:
-        add_unknown(index)
-    if config.add_pip_as_python_dependency:
-        add_pip_dependency(index)
     return index
 
 
