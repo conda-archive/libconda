@@ -11,7 +11,6 @@ import sys
 import logging
 from platform import machine
 from os.path import abspath, expanduser, isfile, isdir, join
-import re
 
 from libconda.compat import urlparse
 from libconda.utils import memoized
@@ -225,15 +224,6 @@ channel_alias = rc.get('channel_alias', DEFAULT_CHANNEL_ALIAS)
 if not sys_rc.get('allow_other_channels', True) and 'channel_alias' in sys_rc:
     channel_alias = sys_rc['channel_alias']
 
-BINSTAR_TOKEN_PAT = re.compile(r'((:?%s|binstar\.org|anaconda\.org)/?)(t/[0-9a-zA-Z\-<>]{4,})/' %
-    (re.escape(channel_alias)))
-
-def hide_binstar_tokens(url):
-    return BINSTAR_TOKEN_PAT.sub(r'\1t/<TOKEN>/', url)
-
-def remove_binstar_tokens(url):
-    return BINSTAR_TOKEN_PAT.sub(r'\1', url)
-
 def normalize_urls(urls, platform=None):
     channel_alias = binstar_channel_alias(rc.get('channel_alias',
                                                  DEFAULT_CHANNEL_ALIAS))
@@ -276,25 +266,20 @@ def get_channel_urls(platform=None):
         res = [url for url in res if url.startswith('file:')]
     return res
 
-def canonical_channel_name(channel, hide=True):
+def canonical_channel_name(channel):
     if channel is None:
         return '<unknown>'
-    channel = remove_binstar_tokens(channel)
     if channel.startswith(channel_alias):
         end = channel.split(channel_alias, 1)[1]
         url = end.split('/')[0]
         if url == 't' and len(end.split('/')) >= 3:
             url = end.split('/')[2]
-        if hide:
-            url = hide_binstar_tokens(url)
         return url
     elif any(channel.startswith(i) for i in get_default_urls()):
         return 'defaults'
     elif channel.startswith('http://filer/'):
         return 'filer'
     else:
-        if hide:
-            return hide_binstar_tokens(channel)
         return channel
 
 # ----- proxy -----

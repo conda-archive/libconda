@@ -31,8 +31,6 @@ dotlog = getLogger('dotupdate')
 stdoutlog = getLogger('stdoutlog')
 stderrlog = getLogger('stderrlog')
 
-fail_unknown_host = False
-
 
 def create_cache_dir():
     cache_dir = join(config.pkgs_dirs[0], 'cache')
@@ -105,7 +103,7 @@ def fetch_repodata(url, cache_dir=None, use_cache=False, session=None):
 
     except ValueError as e:
         raise RuntimeError("Invalid index file: %srepodata.json.bz2: %s" %
-                           (config.remove_binstar_tokens(url), e))
+                           (url, e))
 
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 407: # Proxy Authentication Required
@@ -117,29 +115,27 @@ def fetch_repodata(url, cache_dir=None, use_cache=False, session=None):
         if e.response.status_code == 404:
             if url.startswith(config.DEFAULT_CHANNEL_ALIAS):
                 msg = ('Could not find anaconda.org user %s' %
-                   config.remove_binstar_tokens(url).split(
+                       url.split(
                         config.DEFAULT_CHANNEL_ALIAS)[1].split('/')[0])
             else:
                 if url.endswith('/noarch/'): # noarch directory might not exist
                     return None
-                msg = 'Could not find URL: %s' % config.remove_binstar_tokens(url)
+                msg = 'Could not find URL: %s' % url
         elif e.response.status_code == 403 and url.endswith('/noarch/'):
             return None
 
         elif (e.response.status_code == 401 and config.rc.get('channel_alias',
                         config.DEFAULT_CHANNEL_ALIAS) in url):
-            # Note, this will not trigger if the binstar configured url does
-            # not match the conda configured one.
             msg = ("Warning: you may need to login to anaconda.org again with "
-                "'anaconda login' to access private packages(%s, %s)" %
-                (config.hide_binstar_tokens(url), e))
+                   "'anaconda login' to access private packages(%s, %s)" %
+                   (url, e))
             stderrlog.info(msg)
-            return fetch_repodata(config.remove_binstar_tokens(url),
+            return fetch_repodata(url,
                                   cache_dir=cache_dir,
                                   use_cache=use_cache, session=session)
 
         else:
-            msg = "HTTPError: %s: %s\n" % (e, config.remove_binstar_tokens(url))
+            msg = "HTTPError: %s: %s\n" % (e, url)
 
         log.debug(msg)
         raise RuntimeError(msg)
@@ -160,13 +156,9 @@ def fetch_repodata(url, cache_dir=None, use_cache=False, session=None):
             return fetch_repodata(url, cache_dir=cache_dir,
                                   use_cache=use_cache, session=session)
 
-        msg = "Connection error: %s: %s\n" % (e, config.remove_binstar_tokens(url))
-        stderrlog.info('Could not connect to %s\n' % config.remove_binstar_tokens(url))
-        log.debug(msg)
-        if fail_unknown_host:
-            raise RuntimeError(msg)
+        raise RuntimeError("Connection error: %s: %s\n" % (e, url))
 
-    cache['_url'] = config.remove_binstar_tokens(url)
+    cache['_url'] = url
     try:
         with open(cache_path, 'w') as fo:
             json.dump(cache, fo, indent=2, sort_keys=True)
