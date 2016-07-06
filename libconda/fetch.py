@@ -234,14 +234,6 @@ def fetch_index(channel_urls, use_cache=False, unknown=False):
     index = {}
     stdoutlog.info("Fetching package metadata: ")
     session = CondaSession()
-    for url in reversed(channel_urls):
-        if config.allowed_channels and url not in config.allowed_channels:
-            sys.exit("""
-Error: URL '%s' not in allowed channels.
-
-Allowed channels are:
-  - %s
-""" % (url, '\n  - '.join(config.allowed_channels)))
 
     try:
         import concurrent.futures

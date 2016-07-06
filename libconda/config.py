@@ -297,21 +297,6 @@ def canonical_channel_name(channel, hide=True):
             return hide_binstar_tokens(channel)
         return channel
 
-# ----- allowed channels -----
-
-def get_allowed_channels():
-    if not isfile(sys_rc_path):
-        return None
-    if sys_rc.get('allow_other_channels', True):
-        return None
-    if 'channels' in sys_rc:
-        base_urls = sys_rc['channels']
-    else:
-        base_urls = get_default_urls()
-    return normalize_urls(base_urls)
-
-allowed_channels = get_allowed_channels()
-
 # ----- proxy -----
 
 def get_proxy_servers():
@@ -319,14 +304,6 @@ def get_proxy_servers():
     if isinstance(res, dict):
         return res
     sys.exit("Error: proxy_servers setting not a mapping")
-
-# ----- foreign -----
-
-try:
-    with open(join(root_dir, 'conda-meta', 'foreign')) as fi:
-        foreign = fi.read().split()
-except IOError:
-    foreign = [] if isdir(join(root_dir, 'conda-meta')) else ['python']
 
 # ----- misc -----
 
