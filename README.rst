@@ -8,7 +8,7 @@ are `constructor`', `cas-mirror`, as well as the Continuum Analytics
 internal Anaconda distribution build system.
 
 The main functionality this package provides is to allow importing the
-following:`
+following:
 ```
 from libconda.fetch import fetch_index, fetch_pkg
 from libconda.resolve import Resolve
