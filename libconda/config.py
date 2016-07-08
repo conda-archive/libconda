@@ -67,11 +67,8 @@ rc_path = get_rc_path()
 def load_condarc(path):
     if not path or not isfile(path):
         return {}
-    try:
-        import yaml
-    except ImportError:
-        sys.exit('Error: could not import yaml (required to read .condarc '
-                 'config file: %s)' % path)
+    import yaml
+
     with open(path) as f:
         return yaml.load(f) or {}
 
