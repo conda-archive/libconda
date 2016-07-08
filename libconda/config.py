@@ -44,54 +44,9 @@ else:
 
 # ----- rc file -----
 
-# This is used by conda config to check which keys are allowed in the config
-# file. Be sure to update it when new keys are added.
-
-#################################################################
-# Also update the example condarc file when you add a key here! #
-#################################################################
-
-rc_list_keys = [
-    'channels',
-    'disallow',
-    'create_default_packages',
-    'track_features',
-    'envs_dirs',
-    'default_channels',
-]
-
 DEFAULT_CHANNEL_ALIAS = 'https://conda.anaconda.org/'
 
 ADD_BINSTAR_TOKEN = True
-
-rc_bool_keys = [
-    'add_binstar_token',
-    'add_anaconda_token',
-    'add_pip_as_python_dependency',
-    'always_yes',
-    'always_copy',
-    'allow_softlinks',
-    'auto_update_conda',
-    'changeps1',
-    'use_pip',
-    'offline',
-    'binstar_upload',
-    'anaconda_upload',
-    'show_channel_urls',
-    'allow_other_channels',
-    'update_dependencies',
-]
-
-rc_string_keys = [
-    'ssl_verify',
-    'channel_alias',
-    'root_dir',
-]
-
-# Not supported by conda config yet
-rc_other = [
-    'proxy_servers',
-]
 
 user_rc_path = abspath(expanduser('~/.condarc'))
 sys_rc_path = join(sys.prefix, '.condarc')
