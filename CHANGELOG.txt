@@ -1,4 +1,4 @@
-2016-07-XX   4.0.0:
+2016-07-08   4.0.0:
 -------------------
   * initial release, which is basically taking the code from conda 4.0.10,
     but with a lot of it deleted
