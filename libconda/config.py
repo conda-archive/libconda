@@ -204,39 +204,6 @@ def normalize_urls(urls, platform=None):
             newurls.append('%s/noarch/' % url.rstrip('/'))
     return newurls
 
-offline = bool(rc.get('offline', False))
-
-def get_channel_urls(platform=None):
-    if os.getenv('CIO_TEST'):
-        import cio_test
-        return normalize_urls(cio_test.base_urls, platform=platform)
-
-    if 'channels' not in rc:
-        base_urls = get_default_urls()
-    else:
-        base_urls = get_rc_urls()
-
-    res = normalize_urls(base_urls, platform=platform)
-    if offline:
-        res = [url for url in res if url.startswith('file:')]
-    return res
-
-def canonical_channel_name(channel):
-    if channel is None:
-        return '<unknown>'
-    if channel.startswith(channel_alias):
-        end = channel.split(channel_alias, 1)[1]
-        url = end.split('/')[0]
-        if url == 't' and len(end.split('/')) >= 3:
-            url = end.split('/')[2]
-        return url
-    elif any(channel.startswith(i) for i in get_default_urls()):
-        return 'defaults'
-    elif channel.startswith('http://filer/'):
-        return 'filer'
-    else:
-        return channel
-
 # ----- proxy -----
 
 def get_proxy_servers():
@@ -246,24 +213,6 @@ def get_proxy_servers():
     sys.exit("Error: proxy_servers setting not a mapping")
 
 # ----- misc -----
-
-add_pip_as_python_dependency = bool(rc.get('add_pip_as_python_dependency', True))
-always_yes = bool(rc.get('always_yes', False))
-always_copy = bool(rc.get('always_copy', False))
-changeps1 = bool(rc.get('changeps1', True))
-use_pip = bool(rc.get('use_pip', True))
-binstar_upload = rc.get('anaconda_upload',
-                        rc.get('binstar_upload', None)) # None means ask
-allow_softlinks = bool(rc.get('allow_softlinks', True))
-auto_update_conda = bool(rc.get('auto_update_conda', rc.get('self_update', True)))
-# show channel URLs when displaying what is going to be downloaded
-show_channel_urls = rc.get(
-        'show_channel_urls', None) # None means letting conda decide
-# set packages disallowed to be installed
-disallow = set(rc.get('disallow', []))
-# packages which are added to a newly created environment by default
-create_default_packages = list(rc.get('create_default_packages', []))
-update_dependencies = bool(rc.get('update_dependencies', True))
 
 # ssl_verify can be a boolean value or a filename string
 ssl_verify = rc.get('ssl_verify', True)
