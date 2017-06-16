@@ -6,27 +6,19 @@
 
 from __future__ import print_function, division, absolute_import
 
-import cgi
+from logging import getLogger
 import re
-import json
-
-import requests
+import mimetypes
+import os
+import email
+import cgi
+from io import BytesIO
 
 import libconda
-
-from email.utils import formatdate
-from io import BytesIO
-from logging import getLogger
-from mimetypes import guess_type
-from os import lstat
-from tempfile import SpooledTemporaryFile
-
-from requests.models import Response
-from requests.structures import CaseInsensitiveDict
-
-from libconda.common.compat import ensure_binary
 from libconda.compat import urlparse
 from libconda.config import get_proxy_servers, ssl_verify
+
+import requests
 
 RETRIES = 3
 
@@ -86,31 +78,23 @@ class CondaSession(requests.Session):
 
 class LocalFSAdapter(requests.adapters.BaseAdapter):
 
-    def send(self, request, stream=None, timeout=None, verify=None, cert=None, proxies=None):
+    def send(self, request, stream=None, timeout=None, verify=None, cert=None,
+             proxies=None):
         pathname = url_to_path(request.url)
 
-        resp = Response()
+        resp = requests.models.Response()
         resp.status_code = 200
         resp.url = request.url
 
         try:
-            stats = lstat(pathname)
-        except (IOError, OSError) as exc:
+            stats = os.stat(pathname)
+        except OSError as exc:
             resp.status_code = 404
-            message = {
-                "error": "file does not exist",
-                "path": pathname,
-                "exception": repr(exc),
-            }
-            fh = SpooledTemporaryFile()
-            fh.write(ensure_binary(json.dumps(message)))
-            fh.seek(0)
-            resp.raw = fh
-            resp.close = resp.raw.close
+            resp.raw = exc
         else:
-            modified = formatdate(stats.st_mtime, usegmt=True)
-            content_type = guess_type(pathname)[0] or "text/plain"
-            resp.headers = CaseInsensitiveDict({
+            modified = email.utils.formatdate(stats.st_mtime, usegmt=True)
+            content_type = mimetypes.guess_type(pathname)[0] or "text/plain"
+            resp.headers = requests.structures.CaseInsensitiveDict({
                 "Content-Type": content_type,
                 "Content-Length": stats.st_size,
                 "Last-Modified": modified,
@@ -118,6 +102,7 @@ class LocalFSAdapter(requests.adapters.BaseAdapter):
 
             resp.raw = open(pathname, "rb")
             resp.close = resp.raw.close
+
         return resp
 
     def close(self):
