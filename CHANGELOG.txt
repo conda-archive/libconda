@@ -1,3 +1,8 @@
+2017-06-16   4.0.1:
+-------------------
+  * fix LocalFSAdapter, #3
+
+
 2016-07-08   4.0.0:
 -------------------
   * initial release, which is basically taking the code from conda 4.0.10,
