@@ -99,3 +99,11 @@ def get_http_value(u, key):
         return u.headers.get(key)
     else:
         return u.info().getheader(key)
+
+
+def ensure_binary(value):
+    return value.encode('utf-8') if hasattr(value, 'encode') else value
+
+
+def ensure_text_type(value):
+    return value.decode('utf-8') if hasattr(value, 'decode') else value
