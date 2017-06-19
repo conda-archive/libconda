@@ -6,19 +6,23 @@
 
 from __future__ import print_function, division, absolute_import
 
-from logging import getLogger
 import re
-import mimetypes
-import os
-import email
 import cgi
-from io import BytesIO
 
-import libconda
-from libconda.compat import urlparse
-from libconda.config import get_proxy_servers, ssl_verify
+from email.utils import formatdate
+from io import BytesIO
+from os import lstat
+from json import dumps
+from logging import getLogger
+from mimetypes import guess_type
+from tempfile import SpooledTemporaryFile
 
 import requests
+
+import libconda
+
+from libconda.compat import urlparse, ensure_binary
+from libconda.config import get_proxy_servers, ssl_verify
 
 RETRIES = 3
 
@@ -47,6 +51,7 @@ stderrlog = getLogger('stderrlog')
 # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 
 class CondaSession(requests.Session):
 
@@ -77,24 +82,31 @@ class CondaSession(requests.Session):
 
 
 class LocalFSAdapter(requests.adapters.BaseAdapter):
-
-    def send(self, request, stream=None, timeout=None, verify=None, cert=None,
-             proxies=None):
+    def send(self, request, stream=None, timeout=None, verify=None, cert=None, proxies=None):
         pathname = url_to_path(request.url)
 
-        resp = requests.models.Response()
+        resp = request.Response()
         resp.status_code = 200
         resp.url = request.url
 
         try:
-            stats = os.stat(pathname)
-        except OSError as exc:
+            stats = lstat(pathname)
+        except (IOError, OSError) as exc:
             resp.status_code = 404
-            resp.raw = exc
+            message = {
+                "error": "file does not exist",
+                "path": pathname,
+                "exception": repr(exc),
+            }
+            fh = SpooledTemporaryFile()
+            fh.write(ensure_binary(dumps(message)))
+            fh.seek(0)
+            resp.raw = fh
+            resp.close = resp.raw.close
         else:
-            modified = email.utils.formatdate(stats.st_mtime, usegmt=True)
-            content_type = mimetypes.guess_type(pathname)[0] or "text/plain"
-            resp.headers = requests.structures.CaseInsensitiveDict({
+            modified = formatdate(stats.st_mtime, usegmt=True)
+            content_type = guess_type(pathname)[0] or "text/plain"
+            resp.headers = request.structures.CaseInsensitiveDict({
                 "Content-Type": content_type,
                 "Content-Length": stats.st_size,
                 "Last-Modified": modified,
@@ -102,7 +114,6 @@ class LocalFSAdapter(requests.adapters.BaseAdapter):
 
             resp.raw = open(pathname, "rb")
             resp.close = resp.raw.close
-
         return resp
 
     def close(self):
