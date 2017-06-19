@@ -1,6 +1,6 @@
 2017-XX-XX   4.0.1:
 -------------------
-  *
+  * backport conda fix for LocalFSAdapter, #5
 
 
 2016-07-08   4.0.0:
