@@ -85,7 +85,7 @@ class LocalFSAdapter(requests.adapters.BaseAdapter):
     def send(self, request, stream=None, timeout=None, verify=None, cert=None, proxies=None):
         pathname = url_to_path(request.url)
 
-        resp = request.Response()
+        resp = requests.Response()
         resp.status_code = 200
         resp.url = request.url
 
