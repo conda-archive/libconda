@@ -106,7 +106,7 @@ class LocalFSAdapter(requests.adapters.BaseAdapter):
         else:
             modified = formatdate(stats.st_mtime, usegmt=True)
             content_type = guess_type(pathname)[0] or "text/plain"
-            resp.headers = request.structures.CaseInsensitiveDict({
+            resp.headers = requests.structures.CaseInsensitiveDict({
                 "Content-Type": content_type,
                 "Content-Length": stats.st_size,
                 "Last-Modified": modified,
