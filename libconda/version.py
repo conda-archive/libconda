@@ -14,6 +14,12 @@ def normalized_version(version):
 def ver_eval(vtest, spec):
   return VersionSpec(spec).match(vtest)
 
+
+#: A pattern that matches a . not followed by a *
+DOT = re.compile(r'\.(?!\*)')
+#: A pattern that matches a * if it is not preceded by a .
+STAR = re.compile(r'(?<!\.)\*')
+
 version_check_re = re.compile(r'^[\*\.\+!_0-9a-z]+$')
 version_split_re = re.compile('([0-9]+|[^0-9]+)')
 class VersionOrder(object):
@@ -281,9 +287,14 @@ class VersionSpec(object):
             self.match = self.veval_match_
         else:
             self.spec = spec
-            rx = spec.replace('.', r'\.')
+            # replace the dots that are not followed by a star
+            rx = DOT.sub(r'\.', spec)
             rx = rx.replace('+', r'\+')
-            rx = rx.replace('*', r'.*')
+            # replace .* with a pattern, that either matches '.*' or at the end
+            # of the string. Such, we do match version 14 and 14.0, but not 140
+            rx = rx.replace('.*', r'(:?\..*|$)')
+            # replace the remaining *s that are not preceded by a dot
+            rx = STAR.sub(r'.*', rx)
             rx = r'(%s)$' % rx
             self.regex = re.compile(rx)
             self.match = self.regex_match_

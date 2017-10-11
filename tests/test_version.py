@@ -149,6 +149,7 @@ class TestVersionSpec(unittest.TestCase):
             ('1.7', False),   ('1.5*', False),    ('>=1.5', True),
             ('!=1.5', True),  ('!=1.7.1', False), ('==1.7.1', True),
             ('==1.7', False), ('==1.7.2', False), ('==1.7.1.0', True),
+            ('1.7.1.*', True), ('1.7.*', True), ('1.7.10', False),
             ]:
             m = VersionSpec(vspec)
             self.assertEqual(m.match('1.7.1'), res)
